@@ -38,48 +38,76 @@ public class BinarnoStablo extends ABinarnoStablo {
 		}
 		return Math.min(k.podatak, Math.min(minVrednost(k.levo), minVrednost(k.desno)));
 	}
-	private int visina(CvorStabla k){
-		
-		if(k==null){
+
+	private int visina(CvorStabla k) {
+
+		if (k == null) {
 			return 0; // necemo da brojimo nema visinu
 		}
-		
-		return 1+ Math.max(visina(k.levo), visina(k.desno));
+
+		return 1 + Math.max(visina(k.levo), visina(k.desno));
 	}
-	
+
 	@Override
 	public boolean daLiJeAVL(CvorStabla k) throws LabisException {
 		boolean levaStrana;
 		boolean desnaStrana;
-		if(k==null){
-			return true; //ako provucemo jedno false, provuci ce se do kraja
-						// nikad nece biti true
-			
+		if (k == null) {
+			return true; // ako provucemo jedno false, provuci ce se do kraja
+							// nikad nece biti true
+
 		}
-		
-		boolean razlikaVisina = Math.abs(visina(k.levo)-visina(k.desno))<=1;
-		
-		if(k.levo!=null && k.podatak > maxVrednost(k.levo) && razlikaVisina){
+
+		boolean razlikaVisina = Math.abs(visina(k.levo) - visina(k.desno)) <= 1;
+
+		if (k.levo != null && k.podatak > maxVrednost(k.levo) && razlikaVisina) {
 			levaStrana = daLiJeAVL(k.levo);
-		}else{
-			if(k.levo==null){
+		} else {
+			if (k.levo == null) {
 				levaStrana = true; // provera da li je doslo do kraja- listovi,
-									//pa uslov nije zadovoljen
-			}else{
-				return false; // nema potrebe da se desna proverava 
-								//ako smo naleteli na uslov da nije u levom
+									// pa uslov nije zadovoljen
+			} else {
+				return false; // nema potrebe da se desna proverava
+								// ako smo naleteli na uslov da nije u levom
 			}
 		}
-		
-		if(k.desno!=null && k.podatak<minVrednost(k.desno)&& razlikaVisina){
+
+		if (k.desno != null && k.podatak < minVrednost(k.desno) && razlikaVisina) {
 			desnaStrana = daLiJeAVL(k.desno);
-		}else{
-			if(k.desno == null){
-				desnaStrana=true;
-			}else{
+		} else {
+			if (k.desno == null) {
+				desnaStrana = true;
+			} else {
 				return false;
 			}
 		}
 		return levaStrana && desnaStrana;
 	}
+
+	// ne bacamo exceptin u rekurziji, popucace sve metode do gore!
+	@Override
+	public CvorStabla vratiListNaNajmanjojDubini(CvorStabla k) throws LabisException {
+		if (k == null || (k.levo == null && k.desno == null)) {
+			return k;
+		}
+		// levo ili desno?
+		if (nivoNajplicegCvora(k.levo) < nivoNajplicegCvora(k.desno)) {
+			return vratiListNaNajmanjojDubini(k.levo);
+		}
+		return vratiListNaNajmanjojDubini(k.desno);
+	}
+
+	private int nivoNajplicegCvora(CvorStabla k) {
+		if (k == null) {
+			return Integer.MAX_VALUE;
+		}
+		if (k.levo == null && k.desno == null) {
+			return 0; // ne ide dalje vise // koren na nivou nula
+		}
+		// ako nije list
+		// brojimo ga 1+ i
+
+		return 1 + Math.min(nivoNajplicegCvora(k.levo), nivoNajplicegCvora(k.desno));
+	}
+
 }
